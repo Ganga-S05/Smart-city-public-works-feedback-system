@@ -1,0 +1,684 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CivicFix | Smart City Public Works</title>
+  <style>
+    :root{
+      --bg:#0b1220;
+      --card:#0f1b33;
+      --card2:#111f3d;
+      --text:#eaf0ff;
+      --muted:#9bb0d3;
+      --line:rgba(255,255,255,.08);
+      --accent:#7c5cff;
+      --accent2:#22c55e;
+      --warn:#f59e0b;
+      --danger:#ef4444;
+      --shadow: 0 18px 50px rgba(0,0,0,.35);
+      --radius:18px;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial;
+      background: radial-gradient(1200px 600px at 20% -10%, rgba(124,92,255,.35), transparent 60%),
+                  radial-gradient(900px 500px at 90% 0%, rgba(34,197,94,.25), transparent 55%),
+                  var(--bg);
+      color:var(--text);
+      min-height:100vh;
+    }
+    a{color:inherit}
+    .wrap{max-width:1100px;margin:0 auto;padding:22px}
+    .topbar{
+      display:flex;align-items:center;justify-content:space-between;gap:14px;
+      padding:14px 16px;border:1px solid var(--line);background:rgba(15,27,51,.55);
+      border-radius: var(--radius);box-shadow: var(--shadow);backdrop-filter: blur(10px);
+      position:sticky;top:14px;z-index:5;
+    }
+    .brand{display:flex;align-items:center;gap:10px}
+    .logo{
+      width:42px;height:42px;border-radius:14px;
+      background: linear-gradient(135deg, var(--accent), #4dd7ff);
+      display:grid;place-items:center;font-weight:800;color:#081027;
+      box-shadow: 0 10px 26px rgba(124,92,255,.25);
+    }
+    .brand h1{font-size:16px;margin:0;line-height:1.1}
+    .brand p{margin:0;font-size:12px;color:var(--muted)}
+    .actions{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+    .pill{
+      border:1px solid var(--line);background:rgba(255,255,255,.04);
+      padding:10px 12px;border-radius:999px;color:var(--muted);
+      display:flex;gap:8px;align-items:center;font-size:13px;
+    }
+    .btn{
+      border:1px solid var(--line);
+      background: rgba(255,255,255,.06);
+      color:var(--text);
+      padding:10px 12px;border-radius:12px;
+      font-weight:650;cursor:pointer;
+      transition:.15s transform ease, .15s background ease;
+    }
+    .btn:hover{transform: translateY(-1px); background: rgba(255,255,255,.09)}
+    .btn.primary{
+      border-color: rgba(124,92,255,.35);
+      background: linear-gradient(135deg, rgba(124,92,255,.95), rgba(77,215,255,.75));
+      color:#071023;
+    }
+    .btn.ghost{background:transparent}
+    .grid{
+      margin-top:18px;
+      display:grid;
+      grid-template-columns: 1.15fr .85fr;
+      gap:16px;
+    }
+    @media (max-width: 920px){ .grid{grid-template-columns:1fr} .topbar{position:relative;top:auto}}
+    .card{
+      border:1px solid var(--line);
+      background: rgba(15,27,51,.55);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(10px);
+      overflow:hidden;
+    }
+    .cardHeader{
+      padding:16px 16px 10px;
+      display:flex;align-items:flex-start;justify-content:space-between;gap:14px;
+      border-bottom:1px solid var(--line);
+    }
+    .cardHeader h2{margin:0;font-size:15px}
+    .cardHeader p{margin:6px 0 0;color:var(--muted);font-size:13px}
+    .cardBody{padding:16px}
+    .row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+    @media (max-width: 520px){.row{grid-template-columns:1fr}}
+    label{display:block;font-size:12px;color:var(--muted);margin:10px 0 6px}
+    input,select,textarea{
+      width:100%;
+      padding:12px 12px;
+      border-radius:14px;
+      border:1px solid var(--line);
+      background: rgba(8,16,35,.55);
+      color:var(--text);
+      outline:none;
+    }
+    textarea{min-height:110px;resize:vertical}
+    .help{font-size:12px;color:var(--muted);margin-top:8px}
+    .drop{
+      border:1px dashed rgba(255,255,255,.18);
+      background: rgba(8,16,35,.35);
+      border-radius: 16px;
+      padding:14px;
+      display:flex;gap:14px;align-items:center;
+    }
+    .thumb{
+      width:64px;height:64px;border-radius:14px;border:1px solid var(--line);
+      overflow:hidden;background:rgba(255,255,255,.03);
+      display:grid;place-items:center;color:var(--muted);font-size:12px;
+    }
+    .thumb img{width:100%;height:100%;object-fit:cover;display:block}
+    .muted{color:var(--muted)}
+    .map{
+      border:1px solid var(--line);
+      border-radius: 18px;
+      overflow:hidden;
+      background:
+        linear-gradient(0deg, rgba(8,16,35,.55), rgba(8,16,35,.55)),
+        url('https://images.unsplash.com/photo-1526779259212-939e64788e3c?auto=format&fit=crop&w=1400&q=60');
+      background-size: cover;
+      background-position:center;
+      min-height:260px;
+      position:relative;
+    }
+    .mapBadge{
+      position:absolute;left:14px;top:14px;
+      background: rgba(15,27,51,.7);
+      border:1px solid var(--line);
+      border-radius:999px;padding:8px 10px;
+      font-size:12px;color:var(--muted);
+      backdrop-filter: blur(10px);
+    }
+    .pin{
+      position:absolute;left:50%;top:50%;
+      transform: translate(-50%, -100%);
+      width:46px;height:46px;border-radius:999px;
+      background: radial-gradient(circle at 30% 30%, #ffffff, #c7b8ff 35%, var(--accent));
+      display:grid;place-items:center;
+      box-shadow: 0 18px 45px rgba(124,92,255,.35);
+      border: 2px solid rgba(255,255,255,.35);
+      cursor:pointer;
+    }
+    .pin:after{
+      content:"";
+      position:absolute;bottom:-14px;left:50%;
+      transform: translateX(-50%);
+      width:0;height:0;border-left:10px solid transparent;border-right:10px solid transparent;
+      border-top:16px solid rgba(124,92,255,.9);
+      filter: drop-shadow(0 10px 14px rgba(0,0,0,.35));
+    }
+    .pin span{color:#071023;font-weight:900}
+    .list{display:flex;flex-direction:column;gap:10px}
+    .item{
+      border:1px solid var(--line);
+      background: rgba(8,16,35,.45);
+      border-radius:16px;
+      padding:12px;
+      display:flex;gap:12px;align-items:flex-start;justify-content:space-between;
+    }
+    .itemLeft{display:flex;gap:12px;align-items:flex-start}
+    .mini{
+      width:44px;height:44px;border-radius:14px;border:1px solid var(--line);
+      background: rgba(255,255,255,.04);
+      display:grid;place-items:center;font-weight:800;color:rgba(255,255,255,.85);
+    }
+    .meta h3{margin:0;font-size:14px}
+    .meta p{margin:4px 0 0;color:var(--muted);font-size:12px}
+    .chips{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
+    .chip{
+      font-size:11px;
+      padding:6px 8px;border-radius:999px;
+      border:1px solid var(--line);
+      color:var(--muted);
+      background: rgba(255,255,255,.03);
+    }
+    .chip.status{color:#0b1220;font-weight:800;border-color:transparent}
+    .s-submitted{background: rgba(124,92,255,.95)}
+    .s-assigned{background: rgba(245,158,11,.95)}
+    .s-progress{background: rgba(77,215,255,.9)}
+    .s-resolved{background: rgba(34,197,94,.95)}
+    .rightBtns{display:flex;flex-direction:column;gap:8px}
+    .small{padding:8px 10px;border-radius:12px;font-size:12px}
+    .divider{height:1px;background:var(--line);margin:14px 0}
+    .toast{
+      position:fixed;right:18px;bottom:18px;z-index:20;
+      padding:12px 14px;border-radius:14px;
+      background: rgba(15,27,51,.85);
+      border:1px solid var(--line);
+      box-shadow: var(--shadow);
+      color:var(--text);
+      display:none;
+      max-width: 360px;
+    }
+    .toast strong{display:block;margin-bottom:2px}
+    .hidden{display:none !important}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="topbar">
+      <div class="brand">
+        <div class="logo">CF</div>
+        <div>
+          <h1>CivicFix</h1>
+          <p>Smart City Public Works Feedback</p>
+        </div>
+      </div>
+
+      <div class="actions">
+        <div class="pill" id="modePill">Mode: <b id="modeText">Citizen</b></div>
+        <button class="btn ghost" id="toggleModeBtn">Switch to Admin</button>
+        <button class="btn primary" id="newReportBtn">+ New Report</button>
+      </div>
+    </div>
+
+    <div class="grid">
+      <!-- LEFT: REPORT FORM -->
+      <div class="card" id="reportCard">
+        <div class="cardHeader">
+          <div>
+            <h2>Report an Issue</h2>
+            <p>Share a photo and location. Get a complaint ID and track status.</p>
+          </div>
+          <button class="btn small" id="useLocationBtn">Use My Location</button>
+        </div>
+
+        <div class="cardBody">
+          <div class="row">
+            <div>
+              <label for="category">Category</label>
+              <select id="category">
+                <option value="Pothole">Pothole</option>
+                <option value="Broken Streetlight">Broken Streetlight</option>
+                <option value="Garbage / Dumping">Garbage / Dumping</option>
+                <option value="Water Leakage">Water Leakage</option>
+                <option value="Road Damage">Road Damage</option>
+                <option value="Other">Other</option>
+              </select>
+            </div>
+            <div>
+              <label for="priority">Priority</label>
+              <select id="priority">
+                <option value="Medium">Medium</option>
+                <option value="High">High</option>
+                <option value="Low">Low</option>
+              </select>
+            </div>
+          </div>
+
+          <label for="title">Short Title</label>
+          <input id="title" placeholder="e.g., Huge pothole near bus stop" maxlength="60"/>
+
+          <label for="desc">Description</label>
+          <textarea id="desc" placeholder="Give a quick description… (size, landmarks, safety risk)"></textarea>
+
+          <div class="row">
+            <div>
+              <label for="lat">Latitude</label>
+              <input id="lat" placeholder="Auto-filled via location" />
+            </div>
+            <div>
+              <label for="lng">Longitude</label>
+              <input id="lng" placeholder="Auto-filled via location" />
+            </div>
+          </div>
+
+          <label>Photo</label>
+          <div class="drop">
+            <div class="thumb" id="thumb">No Photo</div>
+            <div style="flex:1">
+              <input type="file" id="photo" accept="image/*" />
+              <div class="help">Tip: photo helps prioritize faster. (Preview will appear on the left)</div>
+            </div>
+          </div>
+
+          <div class="divider"></div>
+
+          <div style="display:flex;gap:10px;flex-wrap:wrap">
+            <button class="btn primary" id="submitBtn">Submit Report</button>
+            <button class="btn" id="resetBtn">Reset</button>
+          </div>
+          <div class="help" id="noteText">Your report will be saved locally for demo (localStorage).</div>
+        </div>
+      </div>
+
+      <!-- RIGHT: MAP + LIST -->
+      <div class="card">
+        <div class="cardHeader">
+          <div>
+            <h2 id="sideTitle">My Reports</h2>
+            <p id="sideDesc">Track updates from the municipality.</p>
+          </div>
+          <button class="btn small" id="clearBtn">Clear Demo Data</button>
+        </div>
+
+        <div class="cardBody">
+          <div class="map" id="mapBox">
+            <div class="mapBadge" id="mapBadge">Map Preview (placeholder)</div>
+            <div class="pin" title="Demo Pin"><span>📍</span></div>
+          </div>
+
+          <div class="divider"></div>
+
+          <div class="list" id="reportList"></div>
+
+          <!-- ADMIN PANEL -->
+          <div class="hidden" id="adminTools">
+            <div class="divider"></div>
+            <div class="muted" style="font-size:12px;margin-bottom:8px">Admin Actions (demo)</div>
+            <div class="row">
+              <div>
+                <label for="filterStatus">Filter by Status</label>
+                <select id="filterStatus">
+                  <option value="ALL">All</option>
+                  <option value="Submitted">Submitted</option>
+                  <option value="Assigned">Assigned</option>
+                  <option value="In Progress">In Progress</option>
+                  <option value="Resolved">Resolved</option>
+                </select>
+              </div>
+              <div>
+                <label for="filterCategory">Filter by Category</label>
+                <select id="filterCategory">
+                  <option value="ALL">All</option>
+                  <option value="Pothole">Pothole</option>
+                  <option value="Broken Streetlight">Broken Streetlight</option>
+                  <option value="Garbage / Dumping">Garbage / Dumping</option>
+                  <option value="Water Leakage">Water Leakage</option>
+                  <option value="Road Damage">Road Damage</option>
+                  <option value="Other">Other</option>
+                </select>
+              </div>
+            </div>
+            <div class="help">Admin view: assign and update statuses directly on each report card.</div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <script>
+    // ======= Simple Frontend-Only Demo Storage =======
+    const STORAGE_KEY = "civicfix_reports_v1";
+
+    const els = {
+      modeText: document.getElementById("modeText"),
+      toggleModeBtn: document.getElementById("toggleModeBtn"),
+      adminTools: document.getElementById("adminTools"),
+      sideTitle: document.getElementById("sideTitle"),
+      sideDesc: document.getElementById("sideDesc"),
+      reportList: document.getElementById("reportList"),
+      clearBtn: document.getElementById("clearBtn"),
+      newReportBtn: document.getElementById("newReportBtn"),
+
+      // form
+      category: document.getElementById("category"),
+      priority: document.getElementById("priority"),
+      title: document.getElementById("title"),
+      desc: document.getElementById("desc"),
+      lat: document.getElementById("lat"),
+      lng: document.getElementById("lng"),
+      photo: document.getElementById("photo"),
+      thumb: document.getElementById("thumb"),
+      submitBtn: document.getElementById("submitBtn"),
+      resetBtn: document.getElementById("resetBtn"),
+      useLocationBtn: document.getElementById("useLocationBtn"),
+
+      // admin filters
+      filterStatus: document.getElementById("filterStatus"),
+      filterCategory: document.getElementById("filterCategory"),
+
+      toast: document.getElementById("toast"),
+      reportCard: document.getElementById("reportCard"),
+    };
+
+    let isAdmin = false;
+    let photoDataUrl = "";
+
+    function uid(){
+      // Short complaint ID, demo-friendly
+      return "CF-" + Math.random().toString(36).slice(2, 6).toUpperCase() + "-" + Date.now().toString().slice(-4);
+    }
+
+    function nowString(){
+      const d = new Date();
+      return d.toLocaleString();
+    }
+
+    function loadReports(){
+      try{
+        return JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
+      }catch{
+        return [];
+      }
+    }
+
+    function saveReports(reports){
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(reports));
+    }
+
+    function toast(title, msg){
+      els.toast.innerHTML = `<strong>${title}</strong><div class="muted" style="font-size:12px">${msg}</div>`;
+      els.toast.style.display = "block";
+      setTimeout(() => els.toast.style.display = "none", 2600);
+    }
+
+    function statusClass(status){
+      if(status === "Submitted") return "s-submitted";
+      if(status === "Assigned") return "s-assigned";
+      if(status === "In Progress") return "s-progress";
+      if(status === "Resolved") return "s-resolved";
+      return "s-submitted";
+    }
+
+    function iconForCategory(cat){
+      const m = {
+        "Pothole":"🕳️",
+        "Broken Streetlight":"💡",
+        "Garbage / Dumping":"🗑️",
+        "Water Leakage":"🚰",
+        "Road Damage":"🛣️",
+        "Other":"📌"
+      };
+      return m[cat] || "📌";
+    }
+
+    function applyFilters(reports){
+      if(!isAdmin) return reports;
+      const st = els.filterStatus.value;
+      const cat = els.filterCategory.value;
+      return reports.filter(r => (st==="ALL" || r.status===st) && (cat==="ALL" || r.category===cat));
+    }
+
+    function render(){
+      const reports = loadReports().sort((a,b)=>b.createdAtMs - a.createdAtMs);
+      const filtered = applyFilters(reports);
+
+      if(filtered.length === 0){
+        els.reportList.innerHTML = `
+          <div class="item">
+            <div class="itemLeft">
+              <div class="mini">✅</div>
+              <div class="meta">
+                <h3>No reports yet</h3>
+                <p>Create your first report using the form.</p>
+              </div>
+            </div>
+          </div>
+        `;
+        return;
+      }
+
+      els.reportList.innerHTML = filtered.map(r => `
+        <div class="item">
+          <div class="itemLeft">
+            <div class="mini">${iconForCategory(r.category)}</div>
+            <div class="meta">
+              <h3>${escapeHtml(r.title || r.category)}</h3>
+              <p>${escapeHtml(r.category)} • ${escapeHtml(r.area || "Location pinned")} • <span class="muted">${new Date(r.createdAtMs).toLocaleString()}</span></p>
+              <div class="chips">
+                <span class="chip">ID: ${r.id}</span>
+                <span class="chip">Priority: ${r.priority}</span>
+                <span class="chip status ${statusClass(r.status)}">${r.status}</span>
+              </div>
+              ${r.photo ? `<div class="help">📷 Photo attached</div>` : ``}
+            </div>
+          </div>
+
+          <div class="rightBtns">
+            <button class="btn small" onclick="viewReport('${r.id}')">View</button>
+            ${isAdmin ? adminButtons(r) : ""}
+          </div>
+        </div>
+      `).join("");
+    }
+
+    function adminButtons(r){
+      return `
+        <button class="btn small" onclick="setStatus('${r.id}','Assigned')">Assign</button>
+        <button class="btn small" onclick="setStatus('${r.id}','In Progress')">Progress</button>
+        <button class="btn small" onclick="setStatus('${r.id}','Resolved')">Resolve</button>
+      `;
+    }
+
+    function viewReport(id){
+      const r = loadReports().find(x => x.id === id);
+      if(!r) return;
+      const details = [
+        `Category: ${r.category}`,
+        `Priority: ${r.priority}`,
+        `Status: ${r.status}`,
+        `Location: ${r.lat || "?"}, ${r.lng || "?"}`,
+        r.desc ? `Desc: ${r.desc}` : ""
+      ].filter(Boolean).join(" • ");
+      toast(`Report ${r.id}`, details);
+    }
+    window.viewReport = viewReport;
+
+    function setStatus(id, status){
+      const reports = loadReports();
+      const idx = reports.findIndex(x => x.id === id);
+      if(idx === -1) return;
+      reports[idx].status = status;
+      reports[idx].updatedAtMs = Date.now();
+      saveReports(reports);
+      toast("Status updated", `${id} → ${status}`);
+      render();
+    }
+    window.setStatus = setStatus;
+
+    function resetForm(){
+      els.category.value = "Pothole";
+      els.priority.value = "Medium";
+      els.title.value = "";
+      els.desc.value = "";
+      els.lat.value = "";
+      els.lng.value = "";
+      els.photo.value = "";
+      photoDataUrl = "";
+      els.thumb.innerHTML = "No Photo";
+    }
+
+    function escapeHtml(str){
+      return String(str)
+        .replaceAll("&","&amp;")
+        .replaceAll("<","&lt;")
+        .replaceAll(">","&gt;")
+        .replaceAll('"',"&quot;")
+        .replaceAll("'","&#039;");
+    }
+
+    // ======= Events =======
+    els.photo.addEventListener("change", (e)=>{
+      const file = e.target.files?.[0];
+      if(!file) return;
+      const reader = new FileReader();
+      reader.onload = () => {
+        photoDataUrl = reader.result;
+        els.thumb.innerHTML = `<img src="${photoDataUrl}" alt="preview" />`;
+      };
+      reader.readAsDataURL(file);
+    });
+
+    els.submitBtn.addEventListener("click", ()=>{
+      const title = els.title.value.trim();
+      const desc = els.desc.value.trim();
+      const lat = els.lat.value.trim();
+      const lng = els.lng.value.trim();
+
+      if(!title || !desc){
+        toast("Missing details", "Please add a title and description.");
+        return;
+      }
+      if(!lat || !lng){
+        toast("Location needed", "Click “Use My Location” or enter lat/lng.");
+        return;
+      }
+
+      const report = {
+        id: uid(),
+        category: els.category.value,
+        priority: els.priority.value,
+        title,
+        desc,
+        lat,
+        lng,
+        photo: photoDataUrl,
+        status: "Submitted",
+        createdAtMs: Date.now(),
+        updatedAtMs: Date.now(),
+        area: "OMR / Chennai (demo)"
+      };
+
+      const reports = loadReports();
+      reports.unshift(report);
+      saveReports(reports);
+
+      toast("Report submitted ✅", `Complaint ID: ${report.id}`);
+      resetForm();
+      render();
+    });
+
+    els.resetBtn.addEventListener("click", resetForm);
+
+    els.useLocationBtn.addEventListener("click", ()=>{
+      if(!navigator.geolocation){
+        toast("Not supported", "Geolocation is not available in this browser.");
+        return;
+      }
+      navigator.geolocation.getCurrentPosition(
+        (pos)=>{
+          els.lat.value = pos.coords.latitude.toFixed(6);
+          els.lng.value = pos.coords.longitude.toFixed(6);
+          toast("Location set", "Latitude & Longitude filled.");
+        },
+        ()=>{
+          // fallback demo coordinates (OMR, Chennai)
+          els.lat.value = "12.840640";
+          els.lng.value = "80.153040";
+          toast("Using demo location", "Could not access GPS. Filled demo coordinates.");
+        },
+        { enableHighAccuracy:true, timeout:6000 }
+      );
+    });
+
+    els.clearBtn.addEventListener("click", ()=>{
+      localStorage.removeItem(STORAGE_KEY);
+      toast("Cleared", "Demo reports deleted.");
+      render();
+    });
+
+    els.toggleModeBtn.addEventListener("click", ()=>{
+      isAdmin = !isAdmin;
+      els.modeText.textContent = isAdmin ? "Admin" : "Citizen";
+      els.toggleModeBtn.textContent = isAdmin ? "Switch to Citizen" : "Switch to Admin";
+      els.adminTools.classList.toggle("hidden", !isAdmin);
+      els.sideTitle.textContent = isAdmin ? "Admin Dashboard" : "My Reports";
+      els.sideDesc.textContent = isAdmin
+        ? "Assign complaints and update statuses quickly."
+        : "Track updates from the municipality.";
+      toast("Mode changed", isAdmin ? "You are now in Admin mode." : "You are now in Citizen mode.");
+      render();
+    });
+
+    els.newReportBtn.addEventListener("click", ()=>{
+      // scroll to the form
+      els.reportCard.scrollIntoView({behavior:"smooth", block:"start"});
+      toast("New report", "Fill the form and submit.");
+    });
+
+    els.filterStatus.addEventListener("change", render);
+    els.filterCategory.addEventListener("change", render);
+
+    // Seed sample data for first impression (only if empty)
+    (function seed(){
+      const existing = loadReports();
+      if(existing.length) { render(); return; }
+      const demo = [
+        {
+          id:"CF-DEMO-1201",
+          category:"Broken Streetlight",
+          priority:"High",
+          title:"Streetlight not working near junction",
+          desc:"Very dark at night; unsafe for pedestrians.",
+          lat:"12.842001",
+          lng:"80.154120",
+          photo:"",
+          status:"Assigned",
+          createdAtMs: Date.now()-1000*60*70,
+          updatedAtMs: Date.now()-1000*60*30,
+          area:"OMR / Chennai (demo)"
+        },
+        {
+          id:"CF-DEMO-1202",
+          category:"Pothole",
+          priority:"Medium",
+          title:"Large pothole near bus stop",
+          desc:"Bikes slipping during rain; needs filling.",
+          lat:"12.840640",
+          lng:"80.153040",
+          photo:"",
+          status:"Submitted",
+          createdAtMs: Date.now()-1000*60*150,
+          updatedAtMs: Date.now()-1000*60*150,
+          area:"OMR / Chennai (demo)"
+        }
+      ];
+      saveReports(demo);
+      render();
+    })();
+  </script>
+</body>
+</html>
